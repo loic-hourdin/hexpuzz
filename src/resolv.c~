@@ -1,0 +1,201 @@
+#include "resolv.h"
+
+
+Tablesolv1 Tablesolv1init(){
+	Couplev1*ma=malloc(512*sizeof(Couplev1));
+	Tablesolv1 tab;
+	tab.m=ma;
+	tab.t=512;
+	int i;
+	int a;
+	int n=0;
+	int c1,c2,c3;
+	c1=0;c2=0;c3=0;
+	Plateau plat;
+	Couplev1 c;
+
+	while (c1<8){              //chaque ligne a 8 possibilité
+		while(c2<8){
+			while(c3>8){
+				plat=plateau_init_test();  // on crée le plateau
+				for (i=0;i<3;i++){
+					if (i==0){
+						a=c1;
+					}
+					if (i==1){
+						a=c2;
+					}
+					if (i==2){
+						a=c3;
+					}
+					if (a==0){              //0 0 0
+						plat.m[i][0]=0;
+						plat.m[i][1]=0;
+						plat.m[i][2]=0;
+					}
+					if (a==1){              //1 0 0
+						plat.m[i][0]=1;
+						plat.m[i][1]=0;
+						plat.m[i][2]=0;
+					}
+					if (a==2){              //1 1 0
+						plat.m[i][0]=1;
+						plat.m[i][1]=1;
+						plat.m[i][2]=0;
+					}
+					if (a==3){              //1 0 1
+						plat.m[i][0]=1;
+						plat.m[i][1]=0;
+						plat.m[i][2]=1;
+					}
+					if (a==4){              //1 1 1
+						plat.m[i][0]=1;
+						plat.m[i][1]=1;
+						plat.m[i][2]=1;
+					}
+					if (a==5){              //0 1 0
+						plat.m[i][0]=0;
+						plat.m[i][1]=1;
+						plat.m[i][2]=0;
+					}
+					if (a==6){              //0 1 1
+						plat.m[i][0]=0;
+						plat.m[i][1]=1;
+						plat.m[i][2]=1;
+					}
+					if (a==7){              //0 0 1
+						plat.m[i][0]=0;
+						plat.m[i][1]=0;
+						plat.m[i][2]=1;
+					}
+				}
+				c.p=plat;
+				c.type=0;
+				tab.m[n]=c;
+				n++;
+				printf("%d\n",n);
+				c3++;
+			}
+			c3=0;
+			c2++;
+		}
+		c2=0;
+	}
+	if (n!=512){
+		printf("erreur n=%d",n);
+	}
+	return tab;
+}
+
+int test_plateau(Plateau plat1, Plateau plat2){
+	int s=0;
+	int i,ii;
+	for (i=0;i<3;i++){
+		for (ii=0;ii<3;ii++){
+			if (plat1.m[i][ii]==plat2.m[i][ii]){
+				s++;
+			}
+		}
+	}
+	return(!s);
+}
+
+int find_plateau(Tablesolv1 tab, Plateau plat){
+	int i=0;
+	while(test_plateau(plat,tab.m[i].p)||i!=512){
+		i++;
+	}
+	if(i==512){
+		printf("fin\n");
+	}
+	return(i);
+}
+int nombre (Partie l){
+	int i=0;
+	do{
+		i++;
+		l=l->suivant;
+		
+	}while (l!=NULL);
+	return i;}
+
+Partie retour_arriere(Partie partie){
+	Partie copie=NULL;
+	int nbr=nombre(partie);
+	int i=0;
+	int xliste[nbr-1];
+	int yliste[nbr-1];
+	Couple c;
+	partie=partie->suivant;
+	while(partie=!NULL){
+		xliste[i]=partie->donnee.x;
+		yliste[i]=partie->donnee.y;
+		i++;
+	}
+	for (i=nbr-2;i>=0;i--){
+		c.x=xliste[i];
+		c.y=yliste[i];
+		copie=cons(copie,c);
+	}
+	return(copie);
+}
+
+
+
+Partie resolv1 (Plateau plat){
+	int s=1;
+	int a=0;
+	int b,d;
+	Couple c;
+	Partie partie=NULL;
+	Tablesolv1 tab;
+	tab=Tablesolv1init();
+	Plateau platdepart;
+	platdepart=plateau_init_test();
+	Plateau plat1;
+	plat1=plateau_init_test();
+	tab.m[0].type=1;
+	while(partie_gagnate (plat,partie) || s==5000){
+		printf("1");
+		s++;
+		b=0;
+		platdepart=apllique_partie (plat,partie);
+		do{	
+			c.x=b/3;
+			c.y=b%3;
+			plat1=applique_clic(platdepart,c);
+			d=find_plateau(tab,plat1);
+			b++;
+		}while(b!=9 || tab.m[d].type==0);
+		if (tab.m[d].type==0){
+				tab.m[d].type=1;
+				partie=cons(partie,c);
+			}
+		else{
+			tab.m[a].type==2;
+			partie=retour_arriere(partie);
+			}
+
+	}
+	return(partie);
+}
+
+void affichepartie(Partie p){
+	int nbr=nombre(p);
+	int i=0;
+	int ii=0;
+	int xliste[nbr];
+	int yliste[nbr];
+	Couple c;
+	while(p=!NULL){
+		xliste[i]=p->donnee.x;
+		yliste[i]=p->donnee.y;
+		i++;
+	}
+	printf ("partie: \n");
+	for (i=nbr-1;i>=0;i--){
+		printf("n°%d: %d %d\n",ii,xliste[i],yliste[i]);
+		ii++;
+
+	}
+}
